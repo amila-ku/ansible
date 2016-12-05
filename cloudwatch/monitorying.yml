@@ -1,0 +1,12 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  pre_tasks:
+   - debug:
+      msg: "echo play cloudwatch alarm play"
+     
+
+  roles:
+   - role: cloudwatch_alarms

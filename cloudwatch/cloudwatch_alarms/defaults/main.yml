@@ -1,0 +1,13 @@
+---
+# defaults file for cloudwatch_alarms
+
+aws_region : us-west-2
+alert_state : absent
+alert_prefix : team-name
+app_alarm_action : 
+  - "arn:aws:sns:us-west-2:111111304611:Test_Alert"
+
+
+cpu_threshold : 75.0
+memory_threshold : 75.0
+disk_threshold : 75.0

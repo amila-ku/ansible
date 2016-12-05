@@ -1,0 +1,90 @@
+---
+# tasks file for cloudwatch_alarms
+
+
+- name: gather ec2 istance details
+  ec2_remote_facts:
+    region: "{{ aws_region }}"
+    filters:
+      instance-state-name: running
+      "tag:team": teamname
+      "tag:environment": stg
+
+  register: aws_ec2_instance
+
+- name: display server names
+  debug: 
+   msg: "Instance data {{ item.id  }}"
+  with_items: "{{ aws_ec2_instance['instances'] }}"
+
+- name: "create cpu alarm alert when > 75"
+  ec2_metric_alarm:
+    state: "{{ alert_state }}"
+    region: "{{ aws_region }}"
+    name: "{{ alert_prefix }} cpu utilization high alert > 75 on {{ item.id }}"
+    metric: "CPUUtilization"
+    namespace: "AWS/EC2"
+    statistic: Average
+    comparison: ">="
+    threshold: "{{ cpu_threshold }}"
+    period: 300
+    evaluation_periods: 3
+    unit: "Percent"
+    description: "This will alarm when server {{ item.id }} cpu usage average is higher than 75% for 15 minutes "
+    dimensions: {'InstanceId':'{{ item.id }}'}
+    alarm_actions: "{{ app_alarm_action }}"
+  with_items: "{{ aws_ec2_instance.instances }}"
+
+- name: "create memory alarm alert when > 75"
+  ec2_metric_alarm:
+    state: "{{ alert_state }}"
+    region: "{{ aws_region }}"
+    name: "{{ alert_prefix }} memory utilization alert > 75 on {{ item.id }}"
+    metric: "MemoryUtilization"
+    namespace: "System/Linux"
+    statistic: Average
+    comparison: ">="
+    threshold: "{{ memory_threshold }}"
+    period: 300
+    evaluation_periods: 3
+    unit: "Percent"
+    description: "This will alarm when server {{ item.id }} memory usage average is higher than 75% for 15 minutes "
+    dimensions: {'InstanceId':'{{ item.id }}'}
+    alarm_actions: "{{ app_alarm_action }}"
+  with_items: "{{ aws_ec2_instance.instances }}"
+
+- name: "create diskusage alarm alert when > 75"
+  ec2_metric_alarm:
+    state: "{{ alert_state }}"
+    region: "{{ aws_region }}"
+    name: "{{ alert_prefix }} disk utilization high alert > 75 on {{ item.id }}"
+    metric: "DiskSpaceUtilization"
+    namespace: "System/Linux"
+    statistic: Average
+    comparison: ">="
+    threshold: "{{ disk_threshold }}"
+    period: 300
+    evaluation_periods: 3
+    unit: "Percent"
+    description: "This will alarm when server {{ item.id }} disk usage average is higher than 75% for 15 minutes "
+    dimensions: {'InstanceId':'{{ item.id }}'}
+    alarm_actions: "{{ app_alarm_action }}"
+  with_items: "{{ aws_ec2_instance.instances }}"
+
+- name: "alert when instance status checks fails for 15 minutes"
+  ec2_metric_alarm:
+    state: "{{ alert_state }}"
+    region: "{{ aws_region }}"
+    name: "{{ alert_prefix }} instanse status check failure in {{ item.id }}"
+    metric: "StatusCheckFailed"
+    namespace: "AWS/EC2"
+    statistic: Maximum
+    comparison: ">"
+    threshold: 0
+    period: 300
+    evaluation_periods: 3
+    unit: "Count"
+    description: "This will alarm when server {{ item.id }} status check fails"
+    dimensions: {'InstanceId':'{{ item.id }}'}
+    alarm_actions: "{{ app_alarm_action }}"
+  with_items: "{{ aws_ec2_instance.instances }}"
