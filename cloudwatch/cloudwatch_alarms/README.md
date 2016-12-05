@@ -1,7 +1,7 @@
-Role Name
+CloudWatch Alarm Creation
 =========
 
-A brief description of the role goes here.
+This role sets up cloudwatch alarms on cpu utilization, memory utilization, disk usage and instance healthchecks. It can also set a notification action user specifies to the alarm
 
 Requirements
 ------------
