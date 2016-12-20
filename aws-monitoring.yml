@@ -1,0 +1,11 @@
+
+---
+#    data service configuration
+- hosts: aws-monitoring
+  remote_user: ubuntu
+  sudo: yes
+
+  roles:
+     - role: aws-monitoring
+  tags:
+    - monitoring

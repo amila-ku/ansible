@@ -1,0 +1,6 @@
+---
+# defaults file for aws-monitoring
+
+cloudwatch_package: "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
+cloudwatch_package_home: "/opt"
+credentials_file: aws-monitoring/files/awscreds.template

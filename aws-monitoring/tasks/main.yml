@@ -1,0 +1,19 @@
+---
+# tasks file for aws-monitoring
+
+- name: install perl dependencies
+  apt: name={{ item }} state=latest
+  with_items:
+         - libwww-perl
+         - libdatetime-perl
+         - unzip
+
+- name: extrace monitoring scripts to servers
+  unarchive: src={{ cloudwatch_package }} dest={{ cloudwatch_package_home }} copy=no creates=yes owner=ubuntu group=ubuntu
+
+- name: copy creds file
+  copy: src={{ credentials_file }} dest=/opt/aws-scripts-mon/awscreds.template
+
+- name: set cron
+  cron: name="update memory stats to cloudwatch" minute="*/5" job="/opt/aws-scripts-mon/mon-put-instance-data.pl --mem-util --disk-space-util --disk-path=/ --swap-util --aws-credential-file=/opt/aws-scripts-mon/awscreds.template --from-cron" user="ubuntu"
+
